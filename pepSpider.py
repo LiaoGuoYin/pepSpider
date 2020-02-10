@@ -63,7 +63,8 @@ def main():
 
     # make directory_0
     original_path = os.getcwd()
-    os.mkdir(F"{original_path}/output/")
+    if not os.path.exists(F"{original_path}/output/"):
+        os.mkdir(F"{original_path}/output/")
     for k, url in url_dicts.items():
         try:
             # make directory_1
