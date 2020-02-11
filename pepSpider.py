@@ -24,6 +24,7 @@ def spider_book_info(html_doc):
 
 def download_book_images_to(output_dir, book_name: str, book_url: str):
     book_id = book_url.rsplit('/', maxsplit=2)[1]
+    print(F"downloading {book_name} (操作期间请不要动tmp目录) : {output_dir}")
     for image_number in range(1, 1000):  # 1000 页肯定够了
         image_urls = F"http://bp.pep.com.cn/ebooks/{book_id}/files/mobile/{image_number}.jpg"
         response = requests.get(image_urls, headers=headers)
@@ -31,7 +32,7 @@ def download_book_images_to(output_dir, book_name: str, book_url: str):
             image_path = F"{output_dir}{image_number}.jpg"
             with open(image_path, 'wb') as fp:
                 fp.write(response.content)
-            print(F"downloading (操作期间请不要动 tmp目录) {book_name}: {image_path}")
+            print(F"{image_number}.jpg", end=' ')
         else:
             print(F"{book_name}: {image_number - 1} images")
             break
@@ -53,6 +54,19 @@ def images2pdf(from_dir, to_dir, book_name):
         pdf.output(output_book_name)
 
 
+def make_or_rename_dir(dir_path):
+    if not os.path.exists(dir_path):
+        os.mkdir(dir_path)
+        make_or_rename_dir(dir_path)
+    else:
+        if os.path.isdir(dir_path):
+            pass
+        else:
+            os.rename(dir_path, "tmp_dir_name")
+            os.mkdir(dir_path)
+            make_or_rename_dir(dir_path)
+
+
 def main():
     url_dicts = {
         '义务教育教科书': 'http://bp.pep.com.cn/jc/ywjyjks/ywjygjkcjc/index.html',
@@ -61,39 +75,48 @@ def main():
         '普通高中课程标准实验教科书': 'http://bp.pep.com.cn/jc/gzjks/ptgzkcbzsyjks/index.html',
     }
 
-    # make directory_0
+    # make directory_root
     original_path = os.getcwd()
-    if not os.path.exists(F"{original_path}/output/"):
-        os.mkdir(F"{original_path}/output/")
+    make_or_rename_dir(F"{original_path}/output/")
     for k, url in url_dicts.items():
         try:
-            # make directory_1
+            # make directory_leaf
             output_dir = F"{original_path}/output/{k}/"
             tmp_output_dir = F"{original_path}/output/{k}/tmp/"
-            if not os.path.exists(output_dir):
-                os.mkdir(output_dir)
-            if not os.path.exists(tmp_output_dir):
-                os.mkdir(tmp_output_dir)
-            print(F"Output directory: {output_dir}, Tmp directory: {tmp_output_dir}")
+            make_or_rename_dir(output_dir)
+            make_or_rename_dir(tmp_output_dir)
+            print(F"Output directory: {output_dir}\nTmp directory: {tmp_output_dir}")
 
             # crawling
             html_doc = get_html_doc(url)
             book_info_dicts = spider_book_info(html_doc)
             print(book_info_dicts)
             for book_name, book_url in book_info_dicts.items():
+                # check exists
+                os.chdir(output_dir)
+                if os.path.exists(F"{book_name}.pdf"):
+                    print(F"{book_name}.pdf 已存在，开始下一个")
+                    continue
+                print(F"{book_name}.pdf 不存在，开始下载")
+
                 # truncate tmp directory
                 os.chdir(tmp_output_dir)
-                [os.remove(each) for each in os.listdir('.')]
+                [os.remove(file) for file in os.listdir('.')]
                 print("tmp 目录清空成功!")
-                print(os.listdir(tmp_output_dir))
 
                 # download images to tmp directory
                 download_book_images_to(tmp_output_dir, book_name=book_name, book_url=book_url)
 
                 # convert images(JPG) into a PDF file
+                print("开始合并为 PDF...")
                 images2pdf(from_dir=tmp_output_dir, to_dir=output_dir, book_name=book_name)
                 print(F"{book_name} done!")
-                print("-----------" * 5)
+            else:
+                os.chdir(tmp_output_dir)
+                [os.remove(file) for file in os.listdir('.')]
+                print("tmp 目录清空成功!")
+                print("done!")
+                print("-----------" * 10)
         except Exception:
             print(F"有一点错误：{traceback.format_exc()}")
 
