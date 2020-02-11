@@ -47,7 +47,7 @@ def images2pdf(from_dir, to_dir, book_name):
     for each_image in images:
         if each_image.endswith('.jpg'):
             pdf.add_page()
-            pdf.image(each_image, x=5, y=5, w=200, h=290, type='jpg')
+            pdf.image(each_image, x=5, y=5, w=210, h=297, type='jpg')
     else:
         os.chdir(to_dir)
         output_book_name = F"{book_name}.pdf"
