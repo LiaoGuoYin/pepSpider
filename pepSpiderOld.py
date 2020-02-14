@@ -71,8 +71,8 @@ def main():
     url_dicts = {
         '义务教育教科书': 'http://bp.pep.com.cn/jc/ywjyjks/ywjygjkcjc/index.html',
         '义务教育教科书（五·四学制）': 'http://bp.pep.com.cn/jc/ywjyjks/ywjygjkcjc54z/index.html',
-        '普通高中教科书': 'http://bp.pep.com.cn/jc/gzjks/ptgzjks/index.html',
-        '普通高中课程标准实验教科书': 'http://bp.pep.com.cn/jc/gzjks/ptgzkcbzsyjks/index.html',
+        # '普通高中教科书': 'http://bp.pep.com.cn/jc/gzjksz/ptgzjks/index.html',
+        # '普通高中课程标准实验教科书': 'http://bp.pep.com.cn/jc/gzjks/ptgzkcbzsyjks/index.html',
     }
 
     # make directory_root
