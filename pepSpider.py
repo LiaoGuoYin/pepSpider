@@ -21,7 +21,7 @@ def get_books_download_link(basic_url):
     """
     html_doc = get_html_doc(basic_url)
     book_dict = {}
-    book_li_elements = html_doc.xpath('//*[@id="container"]/div/ul/li[@class="fl"]')
+    book_li_elements = html_doc.xpath('//*[@id="container"]/div/ul/li')
     for book in book_li_elements:
         name = book.xpath('./a[1]/@title')[0]
         path = book.xpath('./div/a[2]/@href')[0]
